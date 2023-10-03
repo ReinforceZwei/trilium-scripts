@@ -9,7 +9,7 @@ const months = [
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 // Toggle displaying the current AND next month together
-const doubleMonthView = true;
+const doubleMonthView = false;
 
 // Add or change events here. Array format: [ Name, icon, icon color ]
 const events = [
@@ -180,8 +180,11 @@ async function makeNoteArrays(month, year, monthArray, attributeArray) {
     var monthChildren = await monthNote.getChildNotes();
     
     for (let dayNote of monthChildren) {
-        var indexDay = Number(dayNote.getLabel("dateNote").value.substring(8, 10)); 
-        monthArray[indexDay] = dayNote.noteId;
+        var indexDay = Number(dayNote.getLabel("dateNote").value.substring(8, 10));
+        monthArray[indexDay] = monthArray[indexDay] ?? [];
+        (await dayNote.getChildNotes()).forEach((note) => {
+            monthArray[indexDay].push({ id: note.noteId, title: note.title });
+        });
         
         // Look for events defined by global array (line 15)
         attributeArray[indexDay] = [];
@@ -253,6 +256,18 @@ function stylizeCell(cell, date, monthArray, attributeArray) {
     if (monthArray[date] == undefined) {
         return;
     }
+    
+    monthArray[date].forEach((e) => {
+        let el = document.createElement("div");
+        let link = document.createElement("a");
+        el.appendChild(link);
+        link.innerText = e.title;
+        el.classList.add("marker");
+        link.onclick = () => {
+            api.openSplitWithNote(e.id);
+        };
+        cell.appendChild(el);
+    });
     
     // 'attribute' contains a two-dimensional array.
     // First array dictates which event type it is, second contains event descriptions.
