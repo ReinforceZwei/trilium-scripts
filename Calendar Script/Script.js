@@ -333,7 +333,7 @@ function jump() {
 
 // Activate the clicked day note
 async function goToDay() {
-    var day = await api.getDateNote(event.currentTarget.getAttribute("calendar-date"));
+    var day = await api.getDayNote(event.currentTarget.getAttribute("calendar-date"));
     api.activateNote(day.noteId);
 }
 
